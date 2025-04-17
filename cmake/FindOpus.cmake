@@ -39,6 +39,7 @@
 #POSSIBILITY OF SUCH DAMAGE.
 #=============================================================================
 
+# FindOpus.cmake 内部调试用：
 
 # Look for the opusfile header file.
 find_path( OPUS_INCLUDE_DIR
@@ -56,6 +57,7 @@ mark_as_advanced( OPUS_LIBRARY )
 # handle the QUIETLY and REQUIRED arguments and set OPUSFILE_FOUND to TRUE if 
 # all listed variables are TRUE
 include( ${CMAKE_ROOT}/Modules/FindPackageHandleStandardArgs.cmake )
+
 FIND_PACKAGE_HANDLE_STANDARD_ARGS( Opus DEFAULT_MSG OPUS_LIBRARY OPUS_INCLUDE_DIR )
 
 set( OPUS_LIBRARIES ${OPUS_LIBRARY})
