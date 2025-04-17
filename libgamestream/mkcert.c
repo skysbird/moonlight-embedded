@@ -24,6 +24,10 @@
 #include <openssl/pkcs12.h>
 #include <openssl/rsa.h>
 
+#ifndef OPENSSL_NO_ENGINE
+#include <openssl/engine.h>
+#endif
+
 static const int NUM_BITS = 2048;
 static const int SERIAL = 0;
 static const int NUM_YEARS = 10;
@@ -38,9 +42,17 @@ CERT_KEY_PAIR mkcert_generate() {
 
     bio_err = BIO_new_fp(stderr, BIO_NOCLOSE);
 
+    //OpenSSL_add_all_algorithms();
+    //ERR_load_crypto_strings();
+
     mkcert(&x509, &pkey, NUM_BITS, SERIAL, NUM_YEARS);
 
     p12 = PKCS12_create("limelight", "GameStream", pkey, x509, NULL, 0, 0, 0, 0, 0);
+
+//#ifndef OPENSSL_NO_ENGINE
+//    ENGINE_cleanup();
+//#endif
+//    CRYPTO_cleanup_all_ex_data();
 
     BIO_free(bio_err);
 
@@ -69,15 +81,12 @@ void mkcert_save(const char* certFile, const char* p12File, const char* keyPairF
 }
 
 int mkcert(X509 **x509p, EVP_PKEY **pkeyp, int bits, int serial, int years) {
-    EVP_PKEY_CTX* ctx = EVP_PKEY_CTX_new_id(EVP_PKEY_RSA, NULL);
-    EVP_PKEY_keygen_init(ctx);
-    EVP_PKEY_CTX_set_rsa_keygen_bits(ctx, bits);
-
-    // pk must be initialized on input
-    EVP_PKEY *pk = NULL;;
-    EVP_PKEY_keygen(ctx, &pk);
-
-    EVP_PKEY_CTX_free(ctx);
+    EVP_PKEY *pk = EVP_PKEY_new();
+    RSA *rsa = RSA_generate_key(bits, RSA_F4, NULL, NULL);
+    if (!rsa) {
+        return 0;
+    }
+    EVP_PKEY_assign_RSA(pk, rsa);
 
     X509* cert = X509_new();
     X509_set_version(cert, 2);
