@@ -25,6 +25,8 @@ include_directories(/usr/include/aarch64-linux-gnu/)
 #/workspace/trimui-toolchain/usr/lib/libcurl.so \
 #include_directories(/workspace/trimui-toolchain/usr/include)
 
+link_directories(/opt/ffmpeg60/lib/)
+
 # 告诉 cmake 不要从宿主系统乱找
 SET(CMAKE_FIND_ROOT_PATH_MODE_PROGRAM NEVER)
 SET(CMAKE_FIND_ROOT_PATH_MODE_LIBRARY ONLY)

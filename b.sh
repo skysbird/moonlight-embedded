@@ -1,8 +1,12 @@
-cmake ..   -DCMAKE_BUILD_TYPE=Release   -DCMAKE_TOOLCHAIN_FILE=../arm.cmake   -DENABLE_MMAL=OFF   -DENABLE_PULSEAUDIO=OFF   -DENABLE_X11=OFF   -DENABLE_OPENGL=OFF   -DThreads_FOUND=TRUE   -DCURL_LIBRARY=/usr/lib/aarch64-linux-gnu/libcurl.so   -DCURL_INCLUDE_DIR=/usr/include/aarch64-linux-gnu  -DCMAKE_EXE_LINKER_FLAGS="\
-    /usr/lib/aarch64-linux-gnu/libssl.so.1.1 \
-    /usr/lib/aarch64-linux-gnu/libcrypto.so.1.1 \
-    /usr/lib/aarch64-linux-gnu/libcurl.so \
-    -L/usr/lib/aarch64-linux-gnu \
-    -Wl,-rpath-link,/usr/lib/aarch64-linux-gnu \
-    -L/usr/lib/aarch64-linux-gnu/pulseaudio \
-    -Wl,-rpath-link,/usr/lib/aarch64-linux-gnu/pulseaudio"
+cmake .. -DCMAKE_BUILD_TYPE=Release -DCMAKE_TOOLCHAIN_FILE=../arm.cmake -DThreads_FOUND=TRUE -DENABLE_MMAL=OFF -DENABLE_PULSEAUDIO=OFF -DENABLE_X11=OFF -DENABLE_OPENGL=OFF -DENABLE_LIBCEC=OFF -DENABLE_RSVG=OFF -DENABLE_VAAPI=OFF -DENABLE_VDPAU=OFF -DENABLE_GTK=OFF -DENABLE_DBUS=OFF -DCURL_LIBRARY=/usr/lib/aarch64-linux-gnu/libcurl.so -DCURL_INCLUDE_DIR=/usr/include/aarch64-linux-gnu -DCMAKE_EXE_LINKER_FLAGS="/usr/lib/aarch64-linux-gnu/libssl.so.1.1 /usr/lib/aarch64-linux-gnu/libcrypto.so.1.1 /usr/lib/aarch64-linux-gnu/libcurl.so -L/usr/lib/aarch64-linux-gnu -Wl,-rpath-link,/usr/lib/aarch64-linux-gnu"
+
+
+cmake .. -DCMAKE_BUILD_TYPE=Release -DCMAKE_TOOLCHAIN_FILE=../arm.cmake -DThreads_FOUND=TRUE -DENABLE_MMAL=OFF -DENABLE_PULSEAUDIO=OFF -DENABLE_X11=OFF -DENABLE_OPENGL=OFF -DENABLE_LIBCEC=OFF -DENABLE_RSVG=OFF -DENABLE_VAAPI=OFF -DENABLE_VDPAU=OFF -DENABLE_GTK=OFF -DENABLE_DBUS=OFF -DCURL_LIBRARY=/usr/lib/aarch64-linux-gnu/libcurl.so -DCURL_INCLUDE_DIR=/usr/include/aarch64-linux-gnu -DCMAKE_EXE_LINKER_FLAGS="/usr/lib/aarch64-linux-gnu/libssl.so.1.1 /usr/lib/aarch64-linux-gnu/libcrypto.so.1.1 /usr/lib/aarch64-linux-gnu/libcurl.so" -DAVCODEC_INCLUDE_DIR=/opt/ffmpeg60/include   -DAVCODEC_LIBRARY=/opt/ffmpeg60/lib/libavcodec.so   -DAVUTIL_LIBRARY=/opt/ffmpeg60/lib/libavutil.so   -DSWRESAMPLE_LIBRARY=/opt/ffmpeg60/lib/libswresample.so
+
+cmake .. -DCMAKE_BUILD_TYPE=Release -DCMAKE_TOOLCHAIN_FILE=../arm.cmake -DThreads_FOUND=TRUE -DENABLE_MMAL=OFF -DENABLE_PULSEAUDIO=OFF -DENABLE_X11=OFF -DENABLE_OPENGL=OFF -DENABLE_LIBCEC=OFF -DENABLE_RSVG=OFF -DENABLE_VAAPI=OFF -DENABLE_VDPAU=OFF -DENABLE_GTK=OFF -DENABLE_DBUS=OFF -DCURL_LIBRARY=/usr/lib/aarch64-linux-gnu/libcurl.so -DCURL_INCLUDE_DIR=/usr/include/aarch64-linux-gnu -DCMAKE_EXE_LINKER_FLAGS="/usr/lib/aarch64-linux-gnu/libssl.so.1.1 /usr/lib/aarch64-linux-gnu/libcrypto.so.1.1 /usr/lib/aarch64-linux-gnu/libcurl.so -L/usr/lib/aarch64-linux-gnu -Wl,-rpath-link,/usr/lib/aarch64-linux-gnu -L/opt/ffmpeg60/lib" -DAVCODEC_INCLUDE_DIR=/opt/ffmpeg60/include   -DAVCODEC_LIBRARY=/opt/ffmpeg60/lib/libavcodec.so   -DAVUTIL_LIBRARY=/opt/ffmpeg60/lib/libavutil.so   -DSWRESAMPLE_LIBRARY=/opt/ffmpeg60/lib/libswresample.so
+
+
+cmake .. -DCMAKE_BUILD_TYPE=Release -DCMAKE_TOOLCHAIN_FILE=../arm.cmake -DThreads_FOUND=TRUE -DENABLE_MMAL=OFF -DENABLE_PULSEAUDIO=OFF -DENABLE_X11=OFF -DENABLE_OPENGL=OFF -DENABLE_LIBCEC
+=OFF -DENABLE_RSVG=OFF -DENABLE_VAAPI=OFF -DENABLE_VDPAU=OFF -DENABLE_GTK=OFF -DENABLE_DBUS=OFF -DCURL_LIBRARY=/workspace/curl-7.56.0/curl-static/lib/libcurl.so -DCURL_INCLUDE_DIR=/workspace/curl-7.56.0/curl-static/include -DCMAKE_EXE_LINKER_
+FLAGS="/usr/lib/aarch64-linux-gnu/libssl.so.1.1 /usr/lib/aarch64-linux-gnu/libcrypto.so.1.1  -L/usr/lib/aarch64-linux-gnu -Wl,-rpath-link,/usr/lib/aarch64-linux-gnu -L/opt/ffmpeg60/lib" -DAVCODEC_INCLUDE_DIR=/opt/ffmpeg60/include   -DAVCODEC_
+LIBRARY=/opt/ffmpeg60/lib/libavcodec.so   -DAVUTIL_LIBRARY=/opt/ffmpeg60/lib/libavutil.so   -DSWRESAMPLE_LIBRARY=/opt/ffmpeg60/lib/libswresample.so
