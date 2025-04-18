@@ -10,3 +10,8 @@ cmake .. -DCMAKE_BUILD_TYPE=Release -DCMAKE_TOOLCHAIN_FILE=../arm.cmake -DThread
 =OFF -DENABLE_RSVG=OFF -DENABLE_VAAPI=OFF -DENABLE_VDPAU=OFF -DENABLE_GTK=OFF -DENABLE_DBUS=OFF -DCURL_LIBRARY=/workspace/curl-7.56.0/curl-static/lib/libcurl.so -DCURL_INCLUDE_DIR=/workspace/curl-7.56.0/curl-static/include -DCMAKE_EXE_LINKER_
 FLAGS="/usr/lib/aarch64-linux-gnu/libssl.so.1.1 /usr/lib/aarch64-linux-gnu/libcrypto.so.1.1  -L/usr/lib/aarch64-linux-gnu -Wl,-rpath-link,/usr/lib/aarch64-linux-gnu -L/opt/ffmpeg60/lib" -DAVCODEC_INCLUDE_DIR=/opt/ffmpeg60/include   -DAVCODEC_
 LIBRARY=/opt/ffmpeg60/lib/libavcodec.so   -DAVUTIL_LIBRARY=/opt/ffmpeg60/lib/libavutil.so   -DSWRESAMPLE_LIBRARY=/opt/ffmpeg60/lib/libswresample.so
+
+
+export CMAKE_INCLUDE_PATH=/workspace/curl-7.56.0/curl-static/include:/opt/ffmpeg60/include
+export CMAKE_LIBRARY_PATH=/workspace/curl-7.56.0/curl-static/lib:/opt/ffmpeg60/lib
+
