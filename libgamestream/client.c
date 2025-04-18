@@ -666,10 +666,10 @@ int gs_pair(PSERVER_DATA server, char* pin) {
 
   // If we failed when attempting to pair with a game running, that's likely the issue.
   // Sunshine supports pairing with an active session, but GFE does not.
-  if (ret != GS_OK && server->currentGame != 0) {
-    gs_error = "The computer is currently in a game. You must close the game before pairing.";
-    ret = GS_WRONG_STATE;
-  }
+  //if (ret != GS_OK && server->currentGame != 0) {
+  //  gs_error = "The computer is currently in a game. You must close the game before pairing.";
+  //  ret = GS_WRONG_STATE;
+  //}
 
   return ret;
 }
