@@ -1,0 +1,47 @@
+# 简化版 Dockerfile - 使用 Ubuntu 交叉编译工具链
+# 适合快速测试构建
+
+FROM ubuntu:22.04
+
+ENV DEBIAN_FRONTEND=noninteractive
+
+# 添加 arm64 架构支持
+RUN dpkg --add-architecture arm64 && \
+    apt-get update && \
+    apt-get install -y --no-install-recommends \
+        build-essential \
+        cmake \
+        git \
+        wget \
+        curl \
+        ca-certificates \
+        pkg-config \
+        # 交叉编译工具链
+        gcc-aarch64-linux-gnu \
+        g++-aarch64-linux-gnu \
+        binutils-aarch64-linux-gnu \
+        # arm64 库 (使用宿主系统的包，适合动态链接)
+        libsdl2-dev:arm64 \
+        libopus-dev:arm64 \
+        libcurl4-openssl-dev:arm64 \
+        libssl-dev:arm64 \
+        libavcodec-dev:arm64 \
+        libavutil-dev:arm64 \
+        libswresample-dev:arm64 \
+        libasound2-dev:arm64 \
+        && rm -rf /var/lib/apt/lists/*
+
+# 设置环境变量
+ENV CROSS_COMPILE=aarch64-linux-gnu-
+ENV CC=aarch64-linux-gnu-gcc
+ENV CXX=aarch64-linux-gnu-g++
+ENV AR=aarch64-linux-gnu-ar
+ENV STRIP=aarch64-linux-gnu-strip
+
+WORKDIR /workspace/moonlight-embedded
+
+# 复制项目代码
+COPY . /workspace/moonlight-embedded
+
+# 默认执行动态链接构建
+CMD ["/bin/bash", "-c", "./build-rgcubexx.sh"]
