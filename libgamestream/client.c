@@ -91,12 +91,22 @@ static int load_unique_id(const char* keyDirectory) {
   char uniqueFilePath[PATH_MAX];
   snprintf(uniqueFilePath, PATH_MAX, "%s/%s", keyDirectory, UNIQUE_FILE_NAME);
 
+  // fread returns the number of *members* read (1 here), not bytes — the prior
+  // `!= UNIQUEID_CHARS` check tripped on every successful read and rewrote the
+  // file with a hardcoded "0123456789ABCDEF" placeholder, giving every device
+  // the same uniqueid and making Sunshine pairing state lossy across reboots.
   FILE *fd = fopen(uniqueFilePath, "r");
-  if (fd == NULL || fread(unique_id, UNIQUEID_CHARS, 1, fd) != UNIQUEID_CHARS) {
-    snprintf(unique_id,UNIQUEID_CHARS+1,"0123456789ABCDEF");
-
+  if (fd == NULL || fread(unique_id, UNIQUEID_CHARS, 1, fd) != 1) {
     if (fd)
       fclose(fd);
+
+    // Generate a real random 8-byte (16 hex char) uniqueid.
+    unsigned char rand_bytes[UNIQUEID_BYTES];
+    if (RAND_bytes(rand_bytes, UNIQUEID_BYTES) != 1)
+      return GS_FAILED;
+    for (int i = 0; i < UNIQUEID_BYTES; i++)
+      sprintf(&unique_id[i*2], "%02X", rand_bytes[i]);
+
     fd = fopen(uniqueFilePath, "w");
     if (fd == NULL)
       return GS_FAILED;
