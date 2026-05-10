@@ -1,10 +1,9 @@
-FROM ubuntu:22.04
+FROM debian:bookworm
 
 ENV DEBIAN_FRONTEND=noninteractive
 
-# 安装基础工具和 aarch64 交叉编译工具链
-RUN dpkg --add-architecture arm64 && \
-    apt-get update && \
+# 安装基础工具和交叉编译工具链
+RUN apt-get update && \
     apt-get install -y --no-install-recommends \
         build-essential \
         cmake \
@@ -13,90 +12,156 @@ RUN dpkg --add-architecture arm64 && \
         curl \
         ca-certificates \
         pkg-config \
+        # 交叉编译工具链
         gcc-aarch64-linux-gnu \
         g++-aarch64-linux-gnu \
         binutils-aarch64-linux-gnu \
         libc6-dev-arm64-cross \
-        # 基本库
+        # 编译依赖所需的工具
+        autoconf \
+        automake \
+        libtool \
+        m4 \
+        make \
+        nasm \
+        yasm \
+        python3 \
+        python3-pip \
+        gperf \
+        # 基础开发库
         libssl-dev \
+        zlib1g-dev \
+        libglib2.0-dev \
+        intltool \
         && rm -rf /var/lib/apt/lists/*
 
-# 手动编译 RG Cube XX 需要的库（静态链接）
 WORKDIR /opt/build
 
-# 编译 OpenSSL (静态)
-RUN wget -q https://www.openssl.org/source/openssl-1.1.1w.tar.gz && \
-    tar xzf openssl-1.1.1w.tar.gz && \
-    cd openssl-1.1.1w && \
-    ./Configure linux-aarch64 --prefix=/opt/rgcubexx --cross-compile-prefix=aarch64-linux-gnu- no-shared && \
-    make -j$(nproc) && \
-    make install_sw && \
-    cd .. && rm -rf openssl-1.1.1w*
-
-# 编译 Opus (静态)
-RUN wget -q https://downloads.xiph.org/releases/opus/opus-1.3.1.tar.gz && \
-    tar xzf opus-1.3.1.tar.gz && \
-    cd opus-1.3.1 && \
-    ./configure --host=aarch64-linux-gnu --prefix=/opt/rgcubexx --enable-fixed-point --disable-doc --disable-extra-programs && \
-    make -j$(nproc) && \
-    make install && \
-    cd .. && rm -rf opus-1.3.1*
-
-# 编译 SDL2 (静态)
-RUN wget -q https://www.libsdl.org/release/SDL2-2.28.5.tar.gz && \
-    tar xzf SDL2-2.28.5.tar.gz && \
-    cd SDL2-2.28.5 && \
-    ./configure --host=aarch64-linux-gnu --prefix=/opt/rgcubexx --disable-video-x11 --disable-video-wayland --disable-video-opengl --disable-video-opengles1 --enable-video-opengles2 --disable-alsa-shared --disable-pulseaudio-shared --disable-joystick --disable-haptic --disable-power --disable-filesystem --disable-timers --disable-file --disable-loadso --disable-cpuinfo --disable-assembly --disable-ssemath --disable-mmx --disable-3dnow --disable-sse --disable-sse2 --disable-sse3 --disable-avx --disable-atomic --disable-render --disable-events --disable-loadso --disable-render --disable-video --disable-atomic --disable-render --disable-events --disable-joystick --disable-haptic --disable-power --disable-filesystem --disable-timers --disable-file --disable-loadso --disable-cpuinfo --disable-assembly && \
-    make -j$(nproc) && \
-    make install && \
-    cd .. && rm -rf SDL2-2.28.5*
-
-# 编译 FFmpeg (精简版，仅用于 moonlight)
-RUN wget -q https://ffmpeg.org/releases/ffmpeg-4.4.4.tar.xz && \
-    tar xf ffmpeg-4.4.4.tar.xz && \
-    cd ffmpeg-4.4.4 && \
-    ./configure \
-        --target-os=linux \
-        --arch=aarch64 \
-        --cross-prefix=aarch64-linux-gnu- \
-        --prefix=/opt/rgcubexx \
-        --disable-shared --enable-static \
-        --disable-doc --disable-ffmpeg --disable-ffplay --disable-ffprobe \
-        --disable-postproc --disable-avfilter --disable-avdevice \
-        --disable-network --disable-bsfs --disable-protocols \
-        --disable-devices --disable-filters --disable-encoders \
-        --disable-decoders --enable-decoder=h264 --enable-decoder=hevc \
-        --enable-gpl --enable-version3 && \
-    make -j$(nproc) && \
-    make install && \
-    cd .. && rm -rf ffmpeg-4.4.4*
-
-# 编译 curl (静态)
-RUN wget -q https://curl.se/download/curl-7.88.1.tar.gz && \
-    tar xzf curl-7.88.1.tar.gz && \
-    cd curl-7.88.1 && \
+# 编译 util-linux (包含 libuuid，静态)
+RUN wget -q https://mirrors.edge.kernel.org/pub/linux/utils/util-linux/v2.39/util-linux-2.39.tar.xz && \
+    tar xf util-linux-2.39.tar.xz && \
+    cd util-linux-2.39 && \
     ./configure \
         --host=aarch64-linux-gnu \
         --prefix=/opt/rgcubexx \
-        --disable-shared --enable-static \
-        --disable-ldap --disable-ldaps --disable-rtsp --disable-dict \
-        --disable-telnet --disable-tftp --disable-pop3 --disable-imap \
-        --disable-smb --disable-smtp --disable-gopher --disable-manual \
-        --without-zlib --without-brotli --without-zstd --without-libpsl \
-        --without-libssh2 --without-nghttp2 --without-libidn2 \
-        --with-openssl=/opt/rgcubexx && \
+        --disable-shared \
+        --enable-static \
+        --disable-all-programs \
+        --enable-libuuid \
+        --without-ncurses \
+        --without-ncursesw \
+        --without-tinfo \
+        --without-readline \
+        --without-udev \
+        --without-selinux \
+        --without-audit \
+        --without-acl \
+        --without-systemd && \
     make -j$(nproc) && \
     make install && \
-    cd .. && rm -rf curl-7.88.1*
+    cd .. && rm -rf util-linux-2.39*
 
-# 编译 ALSA (静态)
-RUN wget -q https://www.alsa-project.org/files/pub/lib/alsa-lib-1.2.8.tar.bz2 && \
-    tar xjf alsa-lib-1.2.8.tar.bz2 && \
-    cd alsa-lib-1.2.8 && \
-    ./configure --host=aarch64-linux-gnu --prefix=/opt/rgcubexx --disable-shared --enable-static && \
+# 编译 libevdev (静态)
+RUN wget -q https://www.freedesktop.org/software/libevdev/libevdev-1.13.1.tar.xz && \
+    tar xf libevdev-1.13.1.tar.xz && \
+    cd libevdev-1.13.1 && \
+    ./configure \
+        --host=aarch64-linux-gnu \
+        --prefix=/opt/rgcubexx \
+        --disable-shared \
+        --enable-static && \
     make -j$(nproc) && \
     make install && \
-    cd .. && rm -rf alsa-lib-1.2.8*
+    cd .. && rm -rf libevdev-1.13.1*
+
+# 编译 eudev (包含 libudev，静态)
+RUN wget -q https://github.com/eudev-project/eudev/releases/download/v3.2.14/eudev-3.2.14.tar.gz && \
+    tar xzf eudev-3.2.14.tar.gz && \
+    cd eudev-3.2.14 && \
+    ./configure \
+        --host=aarch64-linux-gnu \
+        --prefix=/opt/rgcubexx \
+        --disable-shared \
+        --enable-static \
+        --disable-blkid \
+        --disable-kmod \
+        --disable-manpages && \
+    make -j$(nproc) && \
+    make install && \
+    cd .. && rm -rf eudev-3.2.14*
+
+# 编译 Opus (静态)
+RUN wget -q https://downloads.xiph.org/releases/opus/opus-1.4.tar.gz && \
+    tar xzf opus-1.4.tar.gz && \
+    cd opus-1.4 && \
+    ./configure \
+        --host=aarch64-linux-gnu \
+        --prefix=/opt/rgcubexx \
+        --enable-fixed-point \
+        --disable-doc \
+        --disable-extra-programs \
+        --disable-shared \
+        --enable-static && \
+    make -j$(nproc) && \
+    make install && \
+    cd .. && rm -rf opus-1.4*
+
+# 编译 ALSA (静态，仅库)
+RUN wget -q https://www.alsa-project.org/files/pub/lib/alsa-lib-1.2.10.tar.bz2 && \
+    tar xjf alsa-lib-1.2.10.tar.bz2 && \
+    cd alsa-lib-1.2.10 && \
+    ./configure \
+        --host=aarch64-linux-gnu \
+        --prefix=/opt/rgcubexx \
+        --disable-shared \
+        --enable-static \
+        --disable-python \
+        --disable-docs \
+        --with-configdir=/usr/share/alsa && \
+    make -j$(nproc) && \
+    make install && \
+    cd .. && rm -rf alsa-lib-1.2.10*
+
+# 编译 SDL2 (精简版)
+RUN wget -q https://www.libsdl.org/release/SDL2-2.28.5.tar.gz && \
+    tar xzf SDL2-2.28.5.tar.gz && \
+    cd SDL2-2.28.5 && \
+    ./configure \
+        --host=aarch64-linux-gnu \
+        --prefix=/opt/rgcubexx \
+        --disable-shared \
+        --enable-static \
+        --disable-video-x11 \
+        --disable-video-wayland \
+        --disable-video-opengl \
+        --disable-video-opengles1 \
+        --enable-video-opengles2 \
+        --disable-alsa-shared \
+        --disable-pulseaudio \
+        --disable-jack \
+        --disable-esd \
+        --disable-arts \
+        --disable-nas \
+        --disable-sndio \
+        --disable-fusionsound \
+        --disable-libsamplerate \
+        --disable-render-d3d \
+        --disable-render-metal \
+        --disable-haptic \
+        --disable-power \
+        --disable-filesystem \
+        --disable-timers \
+        --disable-loadso \
+        --disable-cpuinfo \
+        --disable-dbus \
+        --enable-alsa \
+        --enable-joystick \
+        --enable-evdev \
+        ALSA_CFLAGS="-I/opt/rgcubexx/include" \
+        ALSA_LIBS="-L/opt/rgcubexx/lib -lasound" && \
+    make -j$(nproc) && \
+    make install && \
+    cd .. && rm -rf SDL2-2.28.5*
 
 # 设置环境变量
 ENV CROSS_COMPILE=aarch64-linux-gnu-
@@ -110,5 +175,8 @@ ENV PKG_CONFIG_PATH=/opt/rgcubexx/lib/pkgconfig
 
 WORKDIR /workspace/moonlight-embedded
 
+# 复制项目代码
+COPY . /workspace/moonlight-embedded
+
 # 默认执行构建
-CMD ["/bin/bash", "-c", "./build-static.sh"]
+CMD ["/bin/bash", "-c", "./build-minimal.sh"]
